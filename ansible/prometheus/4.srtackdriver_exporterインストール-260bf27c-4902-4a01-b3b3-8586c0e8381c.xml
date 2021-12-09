@@ -3,6 +3,7 @@
     <defaultTab>nodes</defaultTab>
     <description></description>
     <executionEnabled>true</executionEnabled>
+    <group>ansible/prometheus</group>
     <id>260bf27c-4902-4a01-b3b3-8586c0e8381c</id>
     <loglevel>INFO</loglevel>
     <name>4.srtackdriver_exporterインストール</name>

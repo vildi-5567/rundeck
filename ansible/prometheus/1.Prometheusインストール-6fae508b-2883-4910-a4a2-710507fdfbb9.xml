@@ -12,6 +12,7 @@
       <threadcount>1</threadcount>
     </dispatch>
     <executionEnabled>true</executionEnabled>
+    <group>ansible/prometheus</group>
     <id>6fae508b-2883-4910-a4a2-710507fdfbb9</id>
     <loglevel>INFO</loglevel>
     <name>1.Prometheusインストール</name>

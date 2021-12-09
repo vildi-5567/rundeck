@@ -48,6 +48,7 @@
       <threadcount>1</threadcount>
     </dispatch>
     <executionEnabled>true</executionEnabled>
+    <group>ansible/prometheus</group>
     <id>7840b836-8c04-423f-9480-dece53d75e96</id>
     <loglevel>INFO</loglevel>
     <name>2.thanosインストール</name>

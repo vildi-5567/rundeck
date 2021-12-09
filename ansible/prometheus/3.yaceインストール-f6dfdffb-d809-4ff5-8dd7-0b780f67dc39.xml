@@ -42,6 +42,7 @@
       <threadcount>1</threadcount>
     </dispatch>
     <executionEnabled>true</executionEnabled>
+    <group>ansible/prometheus</group>
     <id>f6dfdffb-d809-4ff5-8dd7-0b780f67dc39</id>
     <loglevel>INFO</loglevel>
     <name>3.yaceインストール</name>
