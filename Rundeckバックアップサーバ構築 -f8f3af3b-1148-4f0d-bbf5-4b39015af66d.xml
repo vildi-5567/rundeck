@@ -1,0 +1,63 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='globalIP' required='true' />
+      </options>
+    </context>
+    <defaultTab>output</defaultTab>
+    <description></description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>f8f3af3b-1148-4f0d-bbf5-4b39015af66d</id>
+    <loglevel>DEBUG</loglevel>
+    <name>Rundeckバックアップサーバ構築 </name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>Rundeck4</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <node-step-plugin type='localexec'>
+          <configuration>
+            <entry key='command' value='ssh root@${node.hostname} "sudo cat &gt; /etc/rundeck/rundeck-config.properties &lt; /etc/rundeck/rundeck-config.properties"' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
+        <description>javaインストール</description>
+        <exec>sudo yum install -y java-1.8.0</exec>
+      </command>
+      <command>
+        <description>rundeckインストール</description>
+        <exec>sudo yum install -y rundeck</exec>
+      </command>
+      <command>
+        <description>ssh_config追加</description>
+        <exec>echo "StrictHostKeyChecking no" | sudo tee -a /etc/ssh/ssh_config</exec>
+      </command>
+      <command>
+        <description>グローバルIP設定</description>
+        <exec>sudo sed -e "s/grails.serverURL=.*/grails.serverURL=http:\/\/${option.globalIP}:4440/" /etc/rundeck/rundeck-config.properties</exec>
+      </command>
+      <command>
+        <description>定期バックアップ設定</description>
+        <node-step-plugin type='localexec'>
+          <configuration>
+            <entry key='command' value='echo 0 */1 * * * root rsync -avz /var/lib/rundeck/ ${node.username}@${node.hostname}:/var/lib/rundeck/ | sudo tee -a /etc/crontab' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+    </sequence>
+    <uuid>f8f3af3b-1148-4f0d-bbf5-4b39015af66d</uuid>
+  </job>
+</joblist>

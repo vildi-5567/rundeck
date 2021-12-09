@@ -1,0 +1,99 @@
+<joblist>
+  <job>
+    <defaultTab>nodes</defaultTab>
+    <description><![CDATA[<説明>
+# Prometheusのインストールを行います。
+]]></description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>6fae508b-2883-4910-a4a2-710507fdfbb9</id>
+    <loglevel>INFO</loglevel>
+    <name>1.Prometheusインストール</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>.*</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>packagecloudリポジトリ追加</description>
+        <exec>curl -s https://packagecloud.io/install/repositories/prometheus-rpm/release/script.rpm.sh | sudo bash</exec>
+      </command>
+      <command>
+        <description>prometheusインストール</description>
+        <exec>sudo yum install -y prometheus2-2.25.2-1.el8.x86_64</exec>
+      </command>
+      <command>
+        <description>node_exporterインストール</description>
+        <exec> sudo yum install -y node_exporter-1.1.2-1.el8.x86_64</exec>
+      </command>
+      <command>
+        <description>prometheus.yml作成</description>
+        <script><![CDATA[sudo tee /etc/prometheus/prometheus.yml << 'EOF' > /dev/null 
+# my global config
+global:
+  scrape_interval:     60s # Set the scrape interval to every 15 seconds. Default is every 1 minute.
+  evaluation_interval: 60s # Evaluate rules every 15 seconds. The default is every 1 minute.
+  # scrape_timeout is set to the global default (10s).
+
+  external_labels:
+    cluster: prometheus
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+  - static_configs:
+    - targets:
+      # - alertmanager:9093
+
+# Load rules once and periodically evaluate them according to the global 'evaluation_interval'.
+rule_files:
+  # - "first_rules.yml"
+  # - "second_rules.yml"
+
+# A scrape configuration containing exactly one endpoint to scrape:
+# Here it's Prometheus itself.
+scrape_configs:
+  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.
+  - job_name: 'prometheus'
+
+    # metrics_path defaults to '/metrics'
+    # scheme defaults to 'http'.
+
+    static_configs:
+    - targets: ['localhost:9090']
+
+  - job_name: node
+    static_configs:
+    - targets: ['localhost:9100']
+EOF]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>node_exporterサービス登録</description>
+        <exec>sudo systemctl enable node_exporter</exec>
+      </command>
+      <command>
+        <description>prometheusサービス登録</description>
+        <exec>sudo systemctl enable prometheus</exec>
+      </command>
+      <command>
+        <description>node_exporterサービス起動</description>
+        <exec>sudo systemctl start node_exporter</exec>
+      </command>
+      <command>
+        <description>prometheusサービス起動</description>
+        <exec>sudo systemctl start prometheus</exec>
+      </command>
+    </sequence>
+    <uuid>6fae508b-2883-4910-a4a2-710507fdfbb9</uuid>
+  </job>
+</joblist>

@@ -1,0 +1,153 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='S3bucketname' required='true'>
+          <description>thanosが利用するS3のバケット名を指定してください。</description>
+        </option>
+        <option name='thanos_accesskey' required='true' secure='true' value='AKIARMBDZBNOBWBZMU3D' valueExposed='true'>
+          <description>thanosが利用するIAMユーザのaccesskeyを設定してください。</description>
+        </option>
+        <option name='thanos_secretkey' required='true' secure='true' value='F3cAmx4/0Me6Vc6wTu+oQ1MdPNwpCDyacy3Wq7sd' valueExposed='true'>
+          <description>thanosが利用するIAMユーザのsecretkeyを指定してください。</description>
+        </option>
+      </options>
+    </context>
+    <defaultTab>nodes</defaultTab>
+    <description><![CDATA[<説明>
+# thanosのインストールを行います。
+### アクセスキー/シークレットキーの設定に必要なS3のアクセス権限は以下のポリシーになります。
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "Statement",
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:PutObject"
+            ],
+            "Resource": [
+                "arn:aws:s3:::[バケット名]/*",
+                "arn:aws:s3:::[バケット名]"
+            ]
+        }
+    ]
+}
+```
+]]></description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>7840b836-8c04-423f-9480-dece53d75e96</id>
+    <loglevel>INFO</loglevel>
+    <name>2.thanosインストール</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>.*</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>thanosインストール</description>
+        <exec>sudo yum install -y thanos-0.18.0-1.el8.x86_64</exec>
+      </command>
+      <command>
+        <description>S3コンフィグ作成</description>
+        <script><![CDATA[sudo tee /etc/prometheus/s3.conf << 'EOF'
+type: S3
+config:
+  bucket: "@option.S3bucketname@"
+  endpoint: "s3.amazonaws.com"
+  region: "ap-northeast-1"
+  access_key: "@option.thanos_accesskey@"
+  insecure: false
+  signature_version2: false
+  secret_key: "@option.thanos_secretkey@"
+  put_user_metadata: {}
+  http_config:
+    response_header_timeout: 2m
+    insecure_skip_verify: false
+  trace:
+    enable: false
+  list_objects_version: ""
+  part_size: 67108864
+  sse_config:
+    type: ""
+    kms_key_id: ""
+    kms_encryption_context: {}
+    encryption_key: ""
+EOF]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>thanos-sidecar起動ファイル作成</description>
+        <exec>echo "THANOS_SIDECAR_OPTS=\'--tsdb.path=/var/lib/prometheus/data --prometheus.url=http://localhost:9090 --objstore.config-file /etc/prometheus/s3.conf\'" | sudo tee /etc/default/thanos-sidecar</exec>
+      </command>
+      <command>
+        <description>thanos-query起動ファイル作成</description>
+        <exec>echo "THANOS_QUERY_OPTS=\'--http-address=0.0.0.0:10904 --grpc-address=0.0.0.0:10903 --store=localhost:10901\'" | sudo tee /etc/default/thanos-query</exec>
+      </command>
+      <command>
+        <description>thanos-store起動ファイル作成</description>
+        <exec>echo "THANOS_STORE_OPTS=\'--data-dir=/var/lib/thanos/store --http-address=0.0.0.0:10906 --grpc-address=0.0.0.0:10905 --objstore.config-file /etc/prometheus/s3.conf\'" | sudo tee /etc/default/thanos-store</exec>
+      </command>
+      <command>
+        <description>thanos-compact起動ファイル作成</description>
+        <exec>echo "THANOS_COMPACT_OPTS=\'--data-dir=/var/lib/thanos/compact --http-address=0.0.0.0:10912 --objstore.config-file /etc/prometheus/s3.conf\'" |sudo tee /etc/default/thanos-compact</exec>
+      </command>
+      <command>
+        <description>prometheus起動ファイル変更</description>
+        <exec>echo "PROMETHEUS_OPTS=\'--config.file=/etc/prometheus/prometheus.yml --storage.tsdb.path=/var/lib/prometheus/data --storage.tsdb.min-block-duration=1d --storage.tsdb.max-block-duration=1d\'" | sudo tee /etc/default/prometheus</exec>
+      </command>
+      <command>
+        <description>prometheusサービス再起動</description>
+        <exec>sudo systemctl restart prometheus</exec>
+      </command>
+      <command>
+        <description>thanos-sidecarサービス登録</description>
+        <exec>sudo systemctl enable thanos-sidecar</exec>
+      </command>
+      <command>
+        <description>thanos-queryサービス登録</description>
+        <exec>sudo systemctl enable thanos-query</exec>
+      </command>
+      <command>
+        <description>thanos-storeサービス登録</description>
+        <exec>sudo systemctl enable thanos-store</exec>
+      </command>
+      <command>
+        <description>thanos-compactサービス登録</description>
+        <exec>sudo systemctl enable thanos-compact</exec>
+      </command>
+      <command>
+        <description>thanos-sidecarサービス起動</description>
+        <exec>sudo systemctl start thanos-sidecar</exec>
+      </command>
+      <command>
+        <description>thanos-queryサービス起動</description>
+        <exec>sudo systemctl start thanos-query</exec>
+      </command>
+      <command>
+        <description>thanos-storeサービス起動</description>
+        <exec>sudo systemctl start thanos-store</exec>
+      </command>
+      <command>
+        <description>thanos-compactサービス起動</description>
+        <exec>sudo systemctl start thanos-compact</exec>
+      </command>
+    </sequence>
+    <uuid>7840b836-8c04-423f-9480-dece53d75e96</uuid>
+  </job>
+</joblist>

@@ -1,0 +1,201 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='yace_accesskey' required='true' secure='true' value='AKIARMBDZBNOG6SLNYAS' valueExposed='true'>
+          <description>yaceが利用するIAMユーザのAccesskeyを指定してください。</description>
+        </option>
+        <option name='yace_secretkey' required='true' secure='true' value='GvYEdvtyBASN6D1b05juBoGQATDZ7U5lSUQd9MnF' valueExposed='true'>
+          <description>yaceが利用するIAMユーザのSecretkeyを指定してください。</description>
+        </option>
+      </options>
+    </context>
+    <defaultTab>nodes</defaultTab>
+    <description><![CDATA[＜説明＞
+# yaceインストールを行います。
+### アクセスキー/シークレットキーの設定に必要なyaceのアクセス権限は以下のポリシーになります。
+
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": [
+                "tag:GetResources",
+                "cloudwatch:GetMetricData",
+                "cloudwatch:GetMetricStatistics",
+                "cloudwatch:ListMetrics"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+]]></description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>f6dfdffb-d809-4ff5-8dd7-0b780f67dc39</id>
+    <loglevel>INFO</loglevel>
+    <name>3.yaceインストール</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>.*</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>selinux無効化</description>
+        <exec>sudo sed -i "s/SELINUX=enforcing/SELINUX=disabled/" /etc/selinux/config</exec>
+      </command>
+      <command>
+        <description>インスタンス再起動</description>
+        <node-step-plugin type='localexec'>
+          <configuration>
+            <entry key='command' value='ssh ${node.username}@${node.hostname} &apos;sudo reboot &amp; exit 0&apos;' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
+        <description>再起動待ち</description>
+        <node-step-plugin type='nixy-waitfor-sleep-workflow-node-step'>
+          <configuration>
+            <entry key='cycles' value='1' />
+            <entry key='interval' value='3s' />
+            <entry key='progress' value='true' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
+        <description>再起動完了待機</description>
+        <node-step-plugin type='nixy-waitfor-local-port-open'>
+          <configuration>
+            <entry key='host' value='${node.hostname}' />
+            <entry key='interval' value='60' />
+            <entry key='maxtry' value='10' />
+            <entry key='port' value='22' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+      <command>
+        <description>pipインストール</description>
+        <exec>sudo yum install -y python3-pip</exec>
+      </command>
+      <command>
+        <description>awscliインストール</description>
+        <exec>sudo pip3 install awscli</exec>
+      </command>
+      <command>
+        <description>awsコンフィグ作成</description>
+        <script><![CDATA[sudo su - root -c"aws configure set aws_access_key_id @option.yace_accesskey@"
+sudo su - root -c"aws configure set aws_secret_access_key @option.yace_secretkey@"
+sudo su - root -c"aws configure set default.region ap-northeast-1"]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>wgetインストール</description>
+        <exec>sudo yum install -y wget</exec>
+      </command>
+      <command>
+        <description>yace取得</description>
+        <exec>wget https://github.com/ivx/yet-another-cloudwatch-exporter/releases/download/v0.26.3-alpha/yet-another-cloudwatch-exporter_0.26.3-alpha_Linux_x86_64.tar.gz</exec>
+      </command>
+      <command>
+        <description>yace解凍</description>
+        <exec>tar -zxf yet-another-cloudwatch-exporter_0.26.3-alpha_Linux_x86_64.tar.gz</exec>
+      </command>
+      <command>
+        <description>yace移設</description>
+        <script><![CDATA[sudo mv yace /usr/local/
+sudo chown root:root /usr/local/yace]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>yaceコンフィグ作成</description>
+        <script><![CDATA[sudo tee /etc/prometheus/yace.conf << 'EOF' > /dev/null
+discovery:
+  exportedTagsOnMetrics:
+    ec2:
+      - Name
+  jobs:
+  - type: ec2
+    regions:
+      - ap-northeast-1
+    period: 60
+    length: 300
+    delay: 60
+    nilToZero: true
+    searchTags:
+      - key: Name
+        value: .*
+    metrics:
+      - name: CPUUtilization
+        statistics:
+        - Maximum
+      - name: DiskReadBytes
+        statistics:
+        - Maximum
+      - name: DiskWriteBytes
+        statistics:
+        - Maximum
+      - name: NetworkIn
+        statistics:
+        - Sum
+      - name: NetworkOut
+        statistics:
+        - Sum
+EOF]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>yaceサービス化</description>
+        <script><![CDATA[sudo tee /usr/lib/systemd/system/yace.service << 'EOF' > /dev/null
+[Unit]
+Description=yace
+After=network.target
+
+[Service]
+Type=simple
+User=root
+ExecStart=/usr/local/yace -config.file /etc/prometheus/yace.conf
+
+[Install]
+WantedBy=multi-user.target
+EOF]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>yaceサービス登録</description>
+        <exec>sudo systemctl enable yace</exec>
+      </command>
+      <command>
+        <description>yaceサービス起動</description>
+        <exec>sudo systemctl start yace</exec>
+      </command>
+      <command>
+        <description>prometheus.yml追記</description>
+        <script><![CDATA[sudo tee -a /etc/prometheus/prometheus.yml << 'EOF' > /dev/null
+
+  - job_name: cloudwatch
+    static_configs:
+      - targets: ['localhost:5000']
+EOF]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>prometheus再起動</description>
+        <exec>sudo systemctl restart prometheus</exec>
+      </command>
+    </sequence>
+    <uuid>f6dfdffb-d809-4ff5-8dd7-0b780f67dc39</uuid>
+  </job>
+</joblist>

@@ -1,0 +1,87 @@
+<joblist>
+  <job>
+    <defaultTab>nodes</defaultTab>
+    <description></description>
+    <executionEnabled>true</executionEnabled>
+    <id>260bf27c-4902-4a01-b3b3-8586c0e8381c</id>
+    <loglevel>INFO</loglevel>
+    <name>4.srtackdriver_exporterインストール</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <exec>sudo wget https://github.com/prometheus-community/stackdriver_exporter/releases/download/v0.11.0/stackdriver_exporter-0.11.0.linux-amd64.tar.gz</exec>
+      </command>
+      <command>
+        <exec>sudo tar -zxf stackdriver_exporter-0.11.0.linux-amd64.tar.gz</exec>
+      </command>
+      <command>
+        <exec>sudo mv stackdriver_exporter-0.11.0.linux-amd64/stackdriver_exporter /usr/local</exec>
+      </command>
+      <command>
+        <script><![CDATA[sudo tee /root/.aws.json << 'EOF' > /dev/null
+{
+  "type": "service_account",
+  "project_id": "infinite-loader-312612",
+  "private_key_id": "0509b5e772b59f9dcaf6fee84209114be3152183",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC8oE6urhqAMvpG\nf8d75inESaFmdLbWoC4B9KpAlIRlZorXgy3hyqC1NozOz68e13pei1A9Nn1Fk0cG\nEyj3ehOXZiCNoUjV2M2zSRW4g1mkKBSkp0OqdFJkTQBSQsMxIjYs9b3uhCst8rLW\ntpuXcW04sMu1Bb8uDmpHSDTbyC36xZA7faqxg5JaSADpMcFmhUGCaUOq2F0AeW/X\nIJ6qiwSbqkLX3OvTQqp6Rmc0EX1pIV8aLS8BSXwWQNr0wwxOK5oNdiB9YQo2yA/p\nFvLWlayQQPzShAcA9YxPMpb2yqeiA98RhHozwRw52MOhHrWOt+Ia6ClJfZocmY/U\nafHLmGFtAgMBAAECggEAE71pDpHM1y6+j2Mu8rHvHAoimHDNc5+WwQCkUpbYVi5J\niG1Df3YvpFc9nCUS7BTbywokTwulR4M2sxWNO3zskPMQpBHFaA/E0ybqXYFtf6bs\nJiEVDUEYIEQIrRMsjzdH2SOsiUoOpMPZ4GuC0/H8Xqrt3pdn3v+GMsiFM5z65tvY\n+ftq3O1mEKxFtwA1Q5ZBFTyeT2KklRjeY277nSRkadV1BS1L7nROWnCTALO4TwXR\nLG4oyuboXSzC8kiLDaRda5Qtfa6Pu0xMXCzvjHhW0wXtOuGVDFcf22udXxcBgE9+\nJ0V6jjsQ5NFuI9IbvLfVbbluqkBAP/JgKIG1tDHaRwKBgQDqWESUIuFqtDV63hlY\najpEU9MBOV6oWCLSYL4Fedaf7QbPmyJeqOgLMdHBdRxkoScTfhbkx6L/gf0wIECI\nnFqRA85ipd4nWCQTsXwc9rYXQe5w8gLSph7doaGZ4jpKoQqKn1lSsvZV5h6EamVO\no1j8+pA9odwbj/2JSTCvFCxjswKBgQDODoGjCgXyMf6m17gUovPdKBp3Xw6LSp1d\n8OmRN2xQl6aI9LcTeTcAc7NR4gROhX7Z4xGPVPcoIEm1pyjAasBBRXdm4Kw/IEIq\nq5pSu7o1ftFx9hYLWuzr1brp1MdI93S/3DTnIG49MiQHvPBmT10/SPWSHybSlMw/\nK/RBeDoWXwKBgC0+f3cOSPEd+9lN+hy83aUFfg6VcfYUlhyB+w35mPtletQoQnl+\nKNbIdpPgNWwkRPQZevgOpySnhyd8gpkdfsrSrk0TcxGrjcOTl7/Lzhota4i44Nyk\nn/7wTs/0AocYEn3zB/7UeITbGfc8x3RoSy0Ef0a28lUL9spDrDeRMITLAoGAPglq\nCD8VSTS6GVsrBbOFvhi71yKcS118gXLtrxXDm4P81JDwqYE+CPnMjCOC7m0MoubV\nO5T2EHOgHXulLkE1frE+YI/V6+93XEdr3+q7Bi4XOrs/Kc4HNH2Vl57DHPm7gaP3\nnXpLFkuJQ3cj3XmZdlst6/9K/e1kjMRb9nYO7vsCgYEA4Tldf6at8EY6a1+faL7H\nakHd0Wv6f12sHO8CKVLwzS3oQbnAYBw4ZD2farunYsusaJ6CXKj1aIdrwZqqRyY+\njb0j+IJkVm+bxuCmPob7kD5VVn01Fs/+aGK+1MzMynf/5JMkSRx6fo+6jIsh2QNx\nrmyuQztgZkoXICsrBxwmfrs=\n-----END PRIVATE KEY-----\n",
+  "client_email": "gcp-exporter@infinite-loader-312612.iam.gserviceaccount.com",
+  "client_id": "116038397414477677945",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/gcp-exporter%40infinite-loader-312612.iam.gserviceaccount.com"
+}
+EOF
+
+
+echo "GOOGLE_APPLICATION_CREDENTIALS=/root/.gcp.json" | sudo tee /root/gcpenv
+
+]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <script><![CDATA[sudo tee /usr/lib/systemd/system/stackdriver_exporter.service << 'EOF' > /dev/null
+[Unit]
+Description=stackdriver-exporter
+After=network.target
+
+[Service]
+EnvironmentFile=-/etc/default/stackdriver_exporter
+EnvironmentFile=/root/gcpenv
+Type=simple
+User=root
+ExecStart=/usr/local/stackdriver_exporter $STACKDRIVER_EXPORTER_OPTS
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <exec>STACKDRIVER_EXPORTER_OPTS='--monitoring.metrics-type-prefixes "compute.googleapis.com/instance/cpu,compute.googleapis.com/instance/disk,compute.googleapis.com/instance/memory,compute.googleapis.com/instance/network"' | sudo tee /etc/default/stackdriver_exporter</exec>
+      </command>
+      <command>
+        <exec>sudo systemctl enable stackdriver_exporter</exec>
+      </command>
+      <command>
+        <exec>sudo systemctl start stackdriver_exporter</exec>
+      </command>
+      <command>
+        <script><![CDATA[sudo tee -a /etc/prometheus/prometheus.yml << 'EOF' > /dev/null
+  - job_name: stackdriver-exporter
+    static_configs:
+      - targets: ['localhost:9255']
+EOF]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <exec>sudo systemctl restart prometheus</exec>
+      </command>
+    </sequence>
+    <uuid>260bf27c-4902-4a01-b3b3-8586c0e8381c</uuid>
+  </job>
+</joblist>
