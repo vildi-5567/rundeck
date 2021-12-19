@@ -1,0 +1,51 @@
+<joblist>
+  <job>
+    <defaultTab>nodes</defaultTab>
+    <description>ansible-playbookをワークフローステップで実行するサンプルジョブ。</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>f977bc3a-df86-4edc-9061-ec3893b04942</id>
+    <loglevel>INFO</loglevel>
+    <name>ansible-playboook(ワークフローステップ)</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>name: Rundeck</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>ソースを最新の状態に更新します。</description>
+        <step-plugin type='nixy-local-workflow-step'>
+          <configuration>
+            <entry key='script' value='cd Ansible/;git pull' />
+          </configuration>
+        </step-plugin>
+      </command>
+      <command>
+        <description>ngnxをインストールします。</description>
+        <step-plugin type='com.batix.rundeck.plugins.AnsiblePlaybookWorkflowStep'>
+          <configuration>
+            <entry key='ansible-base-dir-path' value='./Ansible/nginx' />
+            <entry key='ansible-become' value='false' />
+            <entry key='ansible-disable-limit' value='false' />
+            <entry key='ansible-extra-param' value='-i hosts --diff --limit production' />
+            <entry key='ansible-playbook' value='site.yml' />
+            <entry key='ansible-ssh-auth-type' value='privateKey' />
+            <entry key='ansible-ssh-passphrase-option' value='option.password' />
+            <entry key='ansible-ssh-use-agent' value='false' />
+            <entry key='ansible-ssh-user' value='centos' />
+          </configuration>
+        </step-plugin>
+      </command>
+    </sequence>
+    <uuid>f977bc3a-df86-4edc-9061-ec3893b04942</uuid>
+  </job>
+</joblist>

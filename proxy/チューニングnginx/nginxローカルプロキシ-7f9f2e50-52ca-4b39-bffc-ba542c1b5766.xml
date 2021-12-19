@@ -10,6 +10,7 @@
       <threadcount>1</threadcount>
     </dispatch>
     <executionEnabled>true</executionEnabled>
+    <group>proxy/チューニングnginx</group>
     <id>7f9f2e50-52ca-4b39-bffc-ba542c1b5766</id>
     <loglevel>INFO</loglevel>
     <name>nginxローカルプロキシ</name>

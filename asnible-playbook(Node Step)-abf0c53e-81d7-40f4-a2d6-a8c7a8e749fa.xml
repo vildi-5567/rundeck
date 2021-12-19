@@ -1,0 +1,43 @@
+<joblist>
+  <job>
+    <defaultTab>nodes</defaultTab>
+    <description>ansible-playbookをNode Stepで実行するサンプルジョブ。</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>abf0c53e-81d7-40f4-a2d6-a8c7a8e749fa</id>
+    <loglevel>INFO</loglevel>
+    <name>asnible-playbook(Node Step)</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>.*</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <node-step-plugin type='com.batix.rundeck.plugins.AnsiblePlaybookWorflowNodeStep'>
+          <configuration>
+            <entry key='ansible-base-dir-path' value='./Ansible/nginx' />
+            <entry key='ansible-become' value='false' />
+            <entry key='ansible-become-method' value='sudo' />
+            <entry key='ansible-extra-param' value='-i ./hosts --diff --limit production' />
+            <entry key='ansible-playbook' value='site.yml' />
+            <entry key='ansible-ssh-auth-type' value='privateKey' />
+            <entry key='ansible-ssh-keypath' value='.ssh/id_rsa' />
+            <entry key='ansible-ssh-passphrase-option' value='option.password' />
+            <entry key='ansible-ssh-use-agent' value='true' />
+            <entry key='ansible-ssh-user' value='centos' />
+          </configuration>
+        </node-step-plugin>
+      </command>
+    </sequence>
+    <uuid>abf0c53e-81d7-40f4-a2d6-a8c7a8e749fa</uuid>
+  </job>
+</joblist>

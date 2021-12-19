@@ -15,7 +15,7 @@
       <threadcount>1</threadcount>
     </dispatch>
     <executionEnabled>true</executionEnabled>
-    <group>backup</group>
+    <group>backup/rundeck</group>
     <id>f8f3af3b-1148-4f0d-bbf5-4b39015af66d</id>
     <loglevel>DEBUG</loglevel>
     <name>Rundeckバックアップサーバ構築 </name>

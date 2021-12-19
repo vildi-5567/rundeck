@@ -1,0 +1,42 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='repository'>
+          <description>cloneするリポジトリ名を指定しててください。</description>
+        </option>
+      </options>
+    </context>
+    <defaultTab>nodes</defaultTab>
+    <description>Rundeckからansibleを実行する為の初回設定としてplaybookの保存されているリポジトリをcloneします。</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>cef978f6-736e-42a3-8a10-529c20b3e8eb</id>
+    <loglevel>INFO</loglevel>
+    <name>Ansible-playboook初回設定</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>name: Rundeck</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>対象のリポジトリをクローンします。</description>
+        <step-plugin type='nixy-local-workflow-step'>
+          <configuration>
+            <entry key='script' value='git clone git@github.com:[ユーザ名]/${option.repository}.git' />
+          </configuration>
+        </step-plugin>
+      </command>
+    </sequence>
+    <uuid>cef978f6-736e-42a3-8a10-529c20b3e8eb</uuid>
+  </job>
+</joblist>
