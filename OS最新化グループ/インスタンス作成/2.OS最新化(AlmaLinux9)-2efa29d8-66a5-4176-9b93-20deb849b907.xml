@@ -1,0 +1,112 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='AWSACCESSKEY' required='true' secure='true' value='AKIARMBDZBNOHKR7A4FA' valueExposed='true'>
+          <description>packerが使用するAWSのアクセスキーを指定します。</description>
+          <label>AWSACCESSKEY</label>
+        </option>
+        <option name='AWSSECRETACCESSKEY' required='true' secure='true' value='KCL7v0xnceY9m33JUhJN6p0JnsSYJzK/X8As5AXk' valueExposed='true'>
+          <description>packerが使用するAWSのシークレットアクセスキーを指定します。</description>
+          <label>AWSSECRETACCESSKEY</label>
+        </option>
+      </options>
+    </context>
+    <defaultTab>output</defaultTab>
+    <description>AlmaLinux9のAMIに初期設定とOSの最新化を行います。</description>
+    <executionEnabled>true</executionEnabled>
+    <group>OS最新化グループ/インスタンス作成</group>
+    <id>2efa29d8-66a5-4176-9b93-20deb849b907</id>
+    <loglevel>INFO</loglevel>
+    <name>2.OS最新化(AlmaLinux9)</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>/var/lib/rundeck/packer作成</description>
+        <script><![CDATA[if [ -e /var/lib/rundeck/packer ]; then
+    echo "Directory Exist"
+else
+    mkdir /var/lib/rundeck/packer
+fi]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>Alma9用jsonファイル作成</description>
+        <script><![CDATA[cat << EOL > /var/lib/rundeck/packer/ami.json
+{
+  "builders": [
+    {
+      "type": "amazon-ebs",
+      "ami_name": "AlmaLinux9-{{isotime | clean_resource_name}}",
+      "temporary_key_pair_type": "ed25519",
+      "access_key": "@option.AWSACCESSKEY@",
+      "secret_key": "@option.AWSSECRETACCESSKEY@",
+      "region": "ap-northeast-1",
+      "source_ami": "ami-0c376282479945650",
+      "instance_type": "t3.micro",
+      "vpc_id": "vpc-093046de5a854c9c5",
+      "ssh_username": "ec2-user",
+      "security_group_ids": [
+        "sg-03179fefab86413aa"
+      ],
+      "subnet_id": "subnet-095c2be997f1ffc36",
+      "associate_public_ip_address": true
+    }
+  ],
+      "provisioners": [
+  {
+      "type": "shell",
+      "inline": [
+      "sudo update-crypto-policies --set DEFAULT:SHA1",
+      "sudo su -c\"echo PubkeyAcceptedAlgorithms=+ssh-rsa >> /etc/ssh/sshd_config\"",
+      "sudo sed -i \"s/=enforcing/=disabled/\" /etc/selinux/config",
+      "sudo dnf update -y"
+       ]
+  }
+ ]
+}
+EOL
+]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>AMIイメージ作成</description>
+        <exec>packer build /var/lib/rundeck/packer/ami.json</exec>
+        <plugins>
+          <LogFilter type='key-value-data'>
+            <config>
+              <invalidKeyPattern>\s|\$|\{|\}|\\</invalidKeyPattern>
+              <logData>false</logData>
+              <name>lastami</name>
+              <regex>^ap-northeast-1: (.+)$</regex>
+            </config>
+          </LogFilter>
+        </plugins>
+      </command>
+      <command>
+        <description>AMI用ディレクトリ作成</description>
+        <script><![CDATA[if [ -e /var/lib/rundeck/ami ]; then
+    echo "Directory Exist"
+else
+    mkdir /var/lib/rundeck/ami
+fi]]></script>
+        <scriptargs />
+      </command>
+      <command>
+        <description>初回実行用</description>
+        <exec>touch /var/lib/rundeck/ami/alma9_last</exec>
+      </command>
+      <command>
+        <description>過去分アーカイブ</description>
+        <exec>mv /var/lib/rundeck/ami/alma9_last /var/lib/rundeck/ami/alma9_`date +%Y%m%d%H%M%S`</exec>
+      </command>
+      <command>
+        <description>AMI最新化</description>
+        <exec>echo ${data.lastami} &gt; '/var/lib/rundeck/ami/alma9_last</exec>
+      </command>
+    </sequence>
+    <uuid>2efa29d8-66a5-4176-9b93-20deb849b907</uuid>
+  </job>
+</joblist>

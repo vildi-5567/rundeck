@@ -16,7 +16,7 @@
     <name>nginxローカルプロキシ</name>
     <nodeFilterEditable>false</nodeFilterEditable>
     <nodefilters>
-      <filter>name: apache1</filter>
+      <filter>.*</filter>
     </nodefilters>
     <nodesSelectedByDefault>true</nodesSelectedByDefault>
     <plugins />

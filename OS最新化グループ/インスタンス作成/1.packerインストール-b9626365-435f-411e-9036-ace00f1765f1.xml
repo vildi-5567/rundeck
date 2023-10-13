@@ -1,0 +1,29 @@
+<joblist>
+  <job>
+    <defaultTab>output</defaultTab>
+    <description>packerをrundeckにインストールします。</description>
+    <executionEnabled>true</executionEnabled>
+    <group>OS最新化グループ/インスタンス作成</group>
+    <id>b9626365-435f-411e-9036-ace00f1765f1</id>
+    <loglevel>INFO</loglevel>
+    <name>1.packerインストール</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>yum-utilsインストール</description>
+        <exec>sudo yum install -y yum-utils</exec>
+      </command>
+      <command>
+        <description>hashicorp.repoインストール</description>
+        <exec>sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/RHEL/hashicorp.repo</exec>
+      </command>
+      <command>
+        <description>packerインストール</description>
+        <exec>sudo yum -y install packer</exec>
+      </command>
+    </sequence>
+    <uuid>b9626365-435f-411e-9036-ace00f1765f1</uuid>
+  </job>
+</joblist>

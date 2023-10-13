@@ -1,0 +1,30 @@
+<joblist>
+  <job>
+    <defaultTab>nodes</defaultTab>
+    <description></description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>940c3365-49ee-4f66-9fa1-8e3bfe820744</id>
+    <loglevel>INFO</loglevel>
+    <name>amiid確認</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>name: Rundeck</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <exec>sudo "ls -l /var/lib/rundeck/ami |awk '{print $9}'"</exec>
+      </command>
+    </sequence>
+    <uuid>940c3365-49ee-4f66-9fa1-8e3bfe820744</uuid>
+  </job>
+</joblist>

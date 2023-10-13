@@ -1,0 +1,50 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='name' required='true'>
+          <description>サーバ名を入力してください。</description>
+        </option>
+        <option name='AMI' required='true' value='alma9_last'>
+          <description><![CDATA[AMIイメージのIDを入力してください。(デフォルト:alma9_last)<br>
+さかのぼる場合はhttp://54.65.21.190:4440/project/Project/job/show/940c3365-49ee-4f66-9fa1-8e3bfe820744を実行してidをさがしてください。]]></description>
+        </option>
+        <option name='count' required='true' value='1'>
+          <description>台数を指定してください。(デフォルト1台)</description>
+          <label>台数</label>
+        </option>
+        <option name='instancetype' required='true' value='t3.micro'>
+          <description>インスタンスタイプを指定してください。(デフォルト:t3.micro)</description>
+          <label>インスタンスタイプ</label>
+        </option>
+        <option name='keyname' required='true' value='aws-1'>
+          <description>私用するキーペア名を指定してください。(デフォルト:aws-1)</description>
+        </option>
+        <option name='securitygroup' required='true' value='sg-03179fefab86413aa'>
+          <description>セキュリティグループを指定してください。(デフォルト:sg-03179fefab86413aa)</description>
+        </option>
+        <option name='subnetid' required='true' value='subnet-095c2be997f1ffc36'>
+          <description>サブネットIDを指定してください。(デフォルト:subnet-095c2be997f1ffc36)</description>
+        </option>
+      </options>
+    </context>
+    <defaultTab>nodes</defaultTab>
+    <description>EC2のインスタンスを作成します。</description>
+    <executionEnabled>true</executionEnabled>
+    <group>OS最新化グループ/インスタンス作成</group>
+    <id>8f1f4e4a-9c43-4a51-b0ab-718482aad522</id>
+    <loglevel>INFO</loglevel>
+    <name>インスタンス作成(自動更新対応版)</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <plugins />
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <script><![CDATA[ami=`sudo cat /var/lib/rundeck/ami/@option.AMI@`
+aws ec2 run-instances --image-id $ami  --count @option.count@ --instance-type @option.instancetype@ --key-name @option.keyname@ --security-group-ids @option.securitygroup@ --subnet-id @option.subnetid@ --tag-specifications 'ResourceType=instance,Tags=[{Key=Name,Value=@option.name@}]']]></script>
+        <scriptargs />
+      </command>
+    </sequence>
+    <uuid>8f1f4e4a-9c43-4a51-b0ab-718482aad522</uuid>
+  </job>
+</joblist>
